@@ -76,6 +76,12 @@ sealed trait ZList[+A] {
     go(self.cons.head, self.cons.tail)
   }
 
+  def reverse: ZList[A] = this match {
+    case ZCons(head, tail) => tail.reverse ++ ZList(head)
+    case ZCons(head, Empty) => this ++ ZList(head)
+    case Empty => Empty
+  }
+
   def sum[B >: A](op: (B, A) => B): B = reduce(op)
 
   def isEmpty: Boolean = this match {
@@ -88,6 +94,12 @@ sealed trait ZList[+A] {
       case cons: ZCons[A] => cons
       case _ => throw new UnsupportedOperationException("empty list")
     }
+  }
+
+  def ++[B >: A](that: ZList[B]): ZList[B] = self match {
+    case ZCons(head, Empty) => ZCons(head, that)
+    case ZCons(head, tail) => ZCons(head, tail.++(that))
+    case Empty => that
   }
 
   //  def groupBy[K](f: A => K): Map[K, Traversable[A]] =
@@ -105,13 +117,6 @@ object ZList {
   def apply[A](as: A*): ZList[A] = // Variadic function syntax
     if (as.isEmpty) Empty
     else ZCons(as.head, apply(as.tail: _*))
-
-  //  def sumSpecial[A](l: ZList[A], f: (A, A) => A): A = {
-  //    l match {
-  //      case ZCons(head, tail) => f(head, sumSpecial(tail, f))
-  //      case ZCons(head, Empty) => f(head, Empty)
-  //    }
-  //  }
 
 
   def intMonoid = new ZList[Int] {
