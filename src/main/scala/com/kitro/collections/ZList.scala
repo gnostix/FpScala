@@ -1,12 +1,14 @@
 package com.kitro.collections
 
+import scala.annotation.tailrec
+
 /**
   * Created by gnostix on 03/04/2019.
   */
 
 case object Empty extends ZList[Nothing]
 
-case class ZCons[+A](head: A, tail: ZList[A]) extends ZList[A]
+case class ZCons[+A](override val head: A, override val tail: ZList[A]) extends ZList[A]
 
 case class CNumber[A](number: A) extends Numeric[A] {
   override def plus(x: A, y: A): A = ???
@@ -33,13 +35,14 @@ case class CNumber[A](number: A) extends Numeric[A] {
 sealed trait ZList[+A] {
   self =>
 
+
   def map[B](f: A => B): ZList[B] = this match {
     case ZCons(head, tail) => ZCons(f(head), tail.map(f))
     case _ => Empty
   }
 
   def size: Int = this match {
-    case ZCons(head, tail) => 1 + tail.size
+    case ZCons(_, tail) => 1 + tail.size
     case _ => 0
   }
 
@@ -49,9 +52,10 @@ sealed trait ZList[+A] {
   }
 
 
-  def forEach[B](c: A => B): Unit =
+  @scala.annotation.tailrec
+  final def forEach[B](c: A => B): Unit =
     this match {
-      case ZCons(head, tail) => c(head); this.forEach(c)
+      case ZCons(head, tail) => c(head); tail forEach c
       case _ =>
     }
 
@@ -78,8 +82,7 @@ sealed trait ZList[+A] {
 
   def reverse: ZList[A] = this match {
     case ZCons(head, tail) => tail.reverse ++ ZList(head)
-    case ZCons(head, Empty) => this ++ ZList(head)
-    case Empty => Empty
+    case _ => Empty
   }
 
   def sum[B >: A](op: (B, A) => B): B = reduce(op)
@@ -99,7 +102,46 @@ sealed trait ZList[+A] {
   def ++[B >: A](that: ZList[B]): ZList[B] = self match {
     case ZCons(head, Empty) => ZCons(head, that)
     case ZCons(head, tail) => ZCons(head, tail.++(that))
-    case Empty => that
+    case _ => that
+  }
+
+  @tailrec
+  final def drop(n: Int): ZList[A] = {
+    if (n == 0) this
+    else if (this.isEmpty) this
+    else this.cons.tail.drop(n - 1)
+  }
+
+  def take(n: Int): ZList[A] = {
+    @tailrec
+    def go(li1: ZList[A], li2: ZList[A], acc: Int): ZList[A] = li1 match {
+      case ZCons(head, tail) =>
+        if (acc == 0) li2
+        else go(tail, li2 ++ ZCons(head, Empty), acc - 1)
+      case _ => li2
+    }
+
+    if (this.isEmpty || this.size < n) this
+    else go(this, ZList(), n)
+  }
+
+  def takeWhile(f: A => Boolean): ZList[A] = {
+    @tailrec
+    def go(li1: ZList[A], li2: ZList[A]): ZList[A] = li1 match {
+      case ZCons(head, _) =>
+        if (!f(head)) li2
+        else go(li1.cons.tail, li2 ++ ZCons(li1.head, Empty))
+      case _ => li2
+    }
+
+    if (this.isEmpty) this
+    else go(this, ZList())
+  }
+
+
+  def headOption: Option[A] = this match {
+    case ZCons(head, _) => Some(head)
+    case _ => None
   }
 
   //  def groupBy[K](f: A => K): Map[K, Traversable[A]] =
@@ -107,6 +149,24 @@ sealed trait ZList[+A] {
   //      case ZCons(head, tail) =>
   //  }
   //  def keys[]
+
+  def tail: ZList[A] = this match {
+    case ZCons(_, tail) => tail
+    case _ => Empty
+  }
+
+  def head: A = this match {
+    case ZCons(head, _) => head
+    case _ => throw new UnsupportedOperationException(" head on empty ZList")
+  }
+
+  //  def head2: A = {
+  //    var result: () => A = () => throw new NoSuchElementException
+  //      for (x <- this) {
+  //        result = () => x
+  //      }
+  //    result()
+  //  }
 }
 
 object ZList {
@@ -118,15 +178,19 @@ object ZList {
     if (as.isEmpty) Empty
     else ZCons(as.head, apply(as.tail: _*))
 
+  def unapply[A](arg: ZList[A]): Option[A] = arg match {
+    case ZCons(head, _) => Some(head)
+    case _ => None
+  }
 
-  def intMonoid = new ZList[Int] {
-    def op(x: Int, y: Int) = x + y
+  def intMonoid: ZList[Int] = new ZList[Int] {
+    def op(x: Int, y: Int): Int = x + y
 
     def zero = 0
   }
 
-  def stringMonoid = new ZList[String] {
-    def op(x: String, y: String) = x + y
+  def stringMonoid: ZList[String] = new ZList[String] {
+    def op(x: String, y: String): String = x + y
 
     def zero = ""
   }
