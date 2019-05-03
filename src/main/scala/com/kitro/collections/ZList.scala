@@ -1,56 +1,47 @@
 package com.kitro.collections
 
+import com.kitro.{Monoid, collections}
+
 import scala.annotation.tailrec
+import scala.collection.{GenIterableLike, mutable}
+import scala.collection.mutable.ArrayBuffer
 
 /**
   * Created by gnostix on 03/04/2019.
   */
 
-case object Empty extends ZList[Nothing]
+case object Empty extends ZList[Nothing] with AbstractEmpty
 
 case class ZCons[+A](override val head: A, override val tail: ZList[A]) extends ZList[A]
 
-case class CNumber[A](number: A) extends Numeric[A] {
-  override def plus(x: A, y: A): A = ???
 
-  override def minus(x: A, y: A): A = ???
+sealed abstract class ZList[+A] extends ZAbstractCollectionTools[A] {
 
-  override def times(x: A, y: A): A = ???
 
-  override def negate(x: A): A = ???
-
-  override def fromInt(x: Int): A = ???
-
-  override def toInt(x: A): Int = ???
-
-  override def toLong(x: A): Long = ???
-
-  override def toFloat(x: A): Float = ???
-
-  override def toDouble(x: A): Double = ???
-
-  override def compare(x: A, y: A): Int = ???
-}
-
-sealed trait ZList[+A] {
   self =>
 
-
-  def map[B](f: A => B): ZList[B] = this match {
+  override def filter(f: A => Boolean): ZList[A] = this match {
+    case ZCons(head, tail) => if (f(head)) ZCons(head, tail.filter(f)) else tail.filter(f)
+    case _ => Empty
+  }
+  override def map[B](f: A => B): ZList[B] = this match {
     case ZCons(head, tail) => ZCons(f(head), tail.map(f))
     case _ => Empty
   }
 
-  def size: Int = this match {
-    case ZCons(_, tail) => 1 + tail.size
-    case _ => 0
-  }
+  override def reduce[B >: A](op: (B, A) => B): B = {
+    if (isEmpty)
+      throw new UnsupportedOperationException("reduce on Empty ZList")
 
-  def filter(f: A => Boolean): ZList[A] = this match {
-    case ZCons(head, tail) => if (f(head)) ZCons(head, tail.filter(f)) else tail.filter(f)
-    case _ => Empty
-  }
+    def go(acc: B, l: ZList[A]): B = {
+      l match {
+        case ZCons(head, tail) => go(op(acc, head), tail)
+        case _ => acc
+      }
+    }
 
+    go(this.head, this.tail.asInstanceOf[ZList[A]])
+  }
 
   @scala.annotation.tailrec
   final def forEach[B](c: A => B): Unit =
@@ -66,31 +57,13 @@ sealed trait ZList[+A] {
     }
   }
 
-  def reduce[B >: A](op: (B, A) => B): B = {
-    if (isEmpty)
-      throw new UnsupportedOperationException("reduce on Empty ZList")
-
-    def go(acc: B, l: ZList[A]): B = {
-      l match {
-        case ZCons(head, tail) => go(op(acc, head), tail)
-        case _ => acc
-      }
-    }
-
-    go(self.cons.head, self.cons.tail)
-  }
+  def reduceRight[B >: A](op: (B, A) => B): B = reverse.reduce(op)
 
   def reverse: ZList[A] = this match {
     case ZCons(head, tail) => tail.reverse ++ ZList(head)
     case _ => Empty
   }
 
-  def sum[B >: A](op: (B, A) => B): B = reduce(op)
-
-  def isEmpty: Boolean = this match {
-    case Empty => true
-    case _ => false
-  }
 
   def cons: ZCons[A] = {
     this match {
@@ -144,29 +117,30 @@ sealed trait ZList[+A] {
     case _ => None
   }
 
-  //  def groupBy[K](f: A => K): Map[K, Traversable[A]] =
-  //    this match {
-  //      case ZCons(head, tail) =>
-  //  }
-  //  def keys[]
 
-  def tail: ZList[A] = this match {
-    case ZCons(_, tail) => tail
-    case _ => Empty
+  def flatMap = ???
+
+  def fastFilter(f: A => Boolean): ZList[A] = {
+    var arr = new ArrayBuffer[A]()
+
+    @tailrec
+    def go(li: ZList[A], arr: ArrayBuffer[A]): ArrayBuffer[A] = {
+      li match {
+        case ZCons(head, tail) => {
+          if (f(head)) {
+            arr.+=(head)
+            go(tail, arr)
+          }
+          else go(tail, arr)
+        }
+        case _ => arr
+      }
+    }
+
+
+    ZList.apply(go(this, arr))
   }
 
-  def head: A = this match {
-    case ZCons(head, _) => head
-    case _ => throw new UnsupportedOperationException(" head on empty ZList")
-  }
-
-  //  def head2: A = {
-  //    var result: () => A = () => throw new NoSuchElementException
-  //      for (x <- this) {
-  //        result = () => x
-  //      }
-  //    result()
-  //  }
 }
 
 object ZList {
@@ -178,20 +152,13 @@ object ZList {
     if (as.isEmpty) Empty
     else ZCons(as.head, apply(as.tail: _*))
 
+  def apply[A](as: ArrayBuffer[A]): ZList[A] = // Variadic function syntax
+    if (as.isEmpty) Empty
+    else ZCons(as.head, apply(as.tail: _*))
+
   def unapply[A](arg: ZList[A]): Option[A] = arg match {
     case ZCons(head, _) => Some(head)
     case _ => None
   }
 
-  def intMonoid: ZList[Int] = new ZList[Int] {
-    def op(x: Int, y: Int): Int = x + y
-
-    def zero = 0
-  }
-
-  def stringMonoid: ZList[String] = new ZList[String] {
-    def op(x: String, y: String): String = x + y
-
-    def zero = ""
-  }
 }
