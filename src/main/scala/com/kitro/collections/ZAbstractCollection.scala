@@ -3,12 +3,16 @@ package com.kitro.collections
 /**
   * Created by gnostix on 02/05/2019.
   */
-trait ZAbstractCollection[+A] {
-//  def map
-//  def filter
-//  def reduce
-
+trait ZAbstractCollection[+A, +COLL[+A]] {
+//  def map: COLL[A]
+//  def filter: COLL[A]
+//  def reduce: A
+//  def head: A
+//  def tail: COLL[A]
+//  def size: Int
 }
 
-trait AbstractEmpty extends ZAbstractCollection[Nothing]
-case class AbstractCon[A](val head: A, val tail: ZAbstractCollection[A]) extends ZAbstractCollection[A]
+trait AbstractEmpty extends ZAbstractCollection[Nothing, Nothing]
+
+abstract class AbstractCon[+A, +COLL[+A]]( val head: A,   val tail: COLL[A])
+  extends ZAbstractCollection[A, COLL]

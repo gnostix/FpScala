@@ -1,164 +1,172 @@
-package com.kitro.collections
-
-import com.kitro.{Monoid, collections}
-
-import scala.annotation.tailrec
-import scala.collection.{GenIterableLike, mutable}
-import scala.collection.mutable.ArrayBuffer
-
-/**
-  * Created by gnostix on 03/04/2019.
-  */
-
-case object Empty extends ZList[Nothing] with AbstractEmpty
-
-case class ZCons[+A](override val head: A, override val tail: ZList[A]) extends ZList[A]
-
-
-sealed abstract class ZList[+A] extends ZAbstractCollectionTools[A] {
-
-
-  self =>
-
-  override def filter(f: A => Boolean): ZList[A] = this match {
-    case ZCons(head, tail) => if (f(head)) ZCons(head, tail.filter(f)) else tail.filter(f)
-    case _ => Empty
-  }
-  override def map[B](f: A => B): ZList[B] = this match {
-    case ZCons(head, tail) => ZCons(f(head), tail.map(f))
-    case _ => Empty
-  }
-
-  override def reduce[B >: A](op: (B, A) => B): B = {
-    if (isEmpty)
-      throw new UnsupportedOperationException("reduce on Empty ZList")
-
-    def go(acc: B, l: ZList[A]): B = {
-      l match {
-        case ZCons(head, tail) => go(op(acc, head), tail)
-        case _ => acc
-      }
-    }
-
-    go(this.head, this.tail.asInstanceOf[ZList[A]])
-  }
-
-  @scala.annotation.tailrec
-  final def forEach[B](c: A => B): Unit =
-    this match {
-      case ZCons(head, tail) => c(head); tail forEach c
-      case _ =>
-    }
-
-  def forAll(f: A => Boolean): Boolean = {
-    this match {
-      case ZCons(head, tail) => if (!f(head)) false else tail.forAll(f)
-      case _ => false
-    }
-  }
-
-  def reduceRight[B >: A](op: (B, A) => B): B = reverse.reduce(op)
-
-  def reverse: ZList[A] = this match {
-    case ZCons(head, tail) => tail.reverse ++ ZList(head)
-    case _ => Empty
-  }
-
-
-  def cons: ZCons[A] = {
-    this match {
-      case cons: ZCons[A] => cons
-      case _ => throw new UnsupportedOperationException("empty list")
-    }
-  }
-
-  def ++[B >: A](that: ZList[B]): ZList[B] = self match {
-    case ZCons(head, Empty) => ZCons(head, that)
-    case ZCons(head, tail) => ZCons(head, tail.++(that))
-    case _ => that
-  }
-
-  @tailrec
-  final def drop(n: Int): ZList[A] = {
-    if (n == 0) this
-    else if (this.isEmpty) this
-    else this.cons.tail.drop(n - 1)
-  }
-
-  def take(n: Int): ZList[A] = {
-    @tailrec
-    def go(li1: ZList[A], li2: ZList[A], acc: Int): ZList[A] = li1 match {
-      case ZCons(head, tail) =>
-        if (acc == 0) li2
-        else go(tail, li2 ++ ZCons(head, Empty), acc - 1)
-      case _ => li2
-    }
-
-    if (this.isEmpty || this.size < n) this
-    else go(this, ZList(), n)
-  }
-
-  def takeWhile(f: A => Boolean): ZList[A] = {
-    @tailrec
-    def go(li1: ZList[A], li2: ZList[A]): ZList[A] = li1 match {
-      case ZCons(head, _) =>
-        if (!f(head)) li2
-        else go(li1.cons.tail, li2 ++ ZCons(li1.head, Empty))
-      case _ => li2
-    }
-
-    if (this.isEmpty) this
-    else go(this, ZList())
-  }
-
-
-  def headOption: Option[A] = this match {
-    case ZCons(head, _) => Some(head)
-    case _ => None
-  }
-
-
-  def flatMap = ???
-
-  def fastFilter(f: A => Boolean): ZList[A] = {
-    var arr = new ArrayBuffer[A]()
-
-    @tailrec
-    def go(li: ZList[A], arr: ArrayBuffer[A]): ArrayBuffer[A] = {
-      li match {
-        case ZCons(head, tail) => {
-          if (f(head)) {
-            arr.+=(head)
-            go(tail, arr)
-          }
-          else go(tail, arr)
-        }
-        case _ => arr
-      }
-    }
-
-
-    ZList.apply(go(this, arr))
-  }
-
-}
-
-object ZList {
-
-
-  def cons[A](head: A, tail: ZList[A]): ZCons[A] = ZCons(head, tail)
-
-  def apply[A](as: A*): ZList[A] = // Variadic function syntax
-    if (as.isEmpty) Empty
-    else ZCons(as.head, apply(as.tail: _*))
-
-  def apply[A](as: ArrayBuffer[A]): ZList[A] = // Variadic function syntax
-    if (as.isEmpty) Empty
-    else ZCons(as.head, apply(as.tail: _*))
-
-  def unapply[A](arg: ZList[A]): Option[A] = arg match {
-    case ZCons(head, _) => Some(head)
-    case _ => None
-  }
-
-}
+//package com.kitro.collections
+//
+//import com.kitro.{Monoid, collections}
+//
+//import scala.annotation.tailrec
+//import scala.collection.{GenIterableLike, mutable}
+//import scala.collection.mutable.ArrayBuffer
+//
+///**
+//  * Created by gnostix on 03/04/2019.
+//  */
+//
+//case object Empty extends ZList[Nothing] with AbstractEmpty
+//
+//case class ZCons[+A]( val head: A, override val tail: ZList[A])
+//  extends ZList[A]
+//
+//
+//
+//sealed abstract class ZList[+A] extends ZAbstractCollectionTools[A, ZList[A], ZCons[A]] {
+//
+//
+//  self =>
+//
+//  override def filter(f: A => Boolean): ZList[A] = this match {
+//    case ZCons(head, tail) => if (f(head)) ZCons(head, tail.filter(f)) else tail.filter(f)
+//    case _ => Empty
+//  }
+//
+//  override def map[B](f: A => B): ZList[B] = this match {
+//    case ZCons(head, tail) => ZCons(f(head), tail.map(f))
+//    case _ => Empty
+//  }
+//
+//  override def reduce[B >: A](op: (B, A) => B): B = {
+//    if (isEmpty)
+//      throw new UnsupportedOperationException("reduce on Empty ZList")
+//
+//    def go(acc: B, l: ZList[A]): B = {
+//      l match {
+//        case ZCons(head, tail) => go(op(acc, head), tail)
+//        case _ => acc
+//      }
+//    }
+//
+//    go(this.head, this.tail.asInstanceOf[ZList[A]])
+//  }
+//
+//  @scala.annotation.tailrec
+//  final def forEach[B](c: A => B): Unit =
+//    this match {
+//      case ZCons(head, tail) => c(head); tail forEach c
+//      case _ =>
+//    }
+//
+//  def forAll(f: A => Boolean): Boolean = {
+//    this match {
+//      case ZCons(head, tail) => if (!f(head)) false else tail.forAll(f)
+//      case _ => false
+//    }
+//  }
+//
+//  def reduceRight[B >: A](op: (B, A) => B): B = reverse.reduce(op)
+//
+//  def reverse: ZList[A] = this match {
+//    case ZCons(head, tail) => tail.reverse ++ ZList(head)
+//    case _ => Empty
+//  }
+//
+//
+//  def cons[A]: ZCons[A] = {
+//    this match {
+//      case cons: ZCons[A] => cons
+//      case _ => throw new UnsupportedOperationException("empty list")
+//    }
+//  }
+//
+//  def ++[B >: A](that: ZList[B]): ZList[B] = self match {
+//    case ZCons(head, Empty) => ZCons(head, that)
+//    case ZCons(head, tail) => ZCons(head, tail.++(that).asInstanceOf[ZList[B]])
+//    case _ => that
+//  }
+//
+//  @tailrec
+//  final def drop(n: Int): ZList[A] = {
+//    if (n == 0) this
+//    else if (this.isEmpty) this
+//    else this.cons.tail.drop(n - 1)
+//  }
+//
+//  override def tail: ZList[A] = this match {
+//    case ZCons(head, tail) => tail
+//    case _ => Empty
+//  }
+//
+//  def take(n: Int): ZList[A] = {
+//    @tailrec
+//    def go(li1: ZList[A], li2: ZList[A], acc: Int): ZList[A] = li1 match {
+//      case ZCons(head, tail) =>
+//        if (acc == 0) li2
+//        else go(tail, li2 ++ ZCons(head, Empty), acc - 1)
+//      case _ => li2
+//    }
+//
+//    if (this.isEmpty || this.size < n) this
+//    else go(this, ZList(), n)
+//  }
+//
+//  def takeWhile(f: A => Boolean): ZList[A] = {
+//    @tailrec
+//    def go(li1: ZList[A], li2: ZList[A]): ZList[A] = li1 match {
+//      case ZCons(head, _) =>
+//        if (!f(head)) li2
+//        else go(li1.cons.tail, li2 ++ ZCons(li1.head, Empty))
+//      case _ => li2
+//    }
+//
+//    if (this.isEmpty) this
+//    else go(this, ZList())
+//  }
+//
+//
+//  def headOption: Option[A] = this match {
+//    case ZCons(head, _) => Some(head)
+//    case _ => None
+//  }
+//
+//
+//  def flatMap = ???
+//
+//  def fastFilter(f: A => Boolean): ZList[A] = {
+//    var arr = new ArrayBuffer[A]()
+//
+//    @tailrec
+//    def go(li: ZList[A], arr: ArrayBuffer[A]): ArrayBuffer[A] = {
+//      li match {
+//        case ZCons(head, tail) => {
+//          if (f(head)) {
+//            arr.+=(head)
+//            go(tail, arr)
+//          }
+//          else go(tail, arr)
+//        }
+//        case _ => arr
+//      }
+//    }
+//
+//
+//    ZList.apply(go(this, arr))
+//  }
+//
+//}
+//
+//object ZList {
+//
+//
+//  def cons[A](head: A, tail: ZList[A]): ZCons[A] = ZCons(head, tail)
+//
+//  def apply[A](as: A*): ZList[A] = // Variadic function syntax
+//    if (as.isEmpty) Empty
+//    else ZCons(as.head, apply(as.tail: _*))
+//
+//  def apply[A](as: ArrayBuffer[A]): ZList[A] = // Variadic function syntax
+//    if (as.isEmpty) Empty
+//    else ZCons(as.head, apply(as.tail: _*))
+//
+//  def unapply[A](arg: ZList[A]): Option[A] = arg match {
+//    case ZCons(head, _) => Some(head)
+//    case _ => None
+//  }
+//
+//}
