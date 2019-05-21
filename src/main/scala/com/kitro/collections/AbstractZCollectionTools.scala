@@ -3,8 +3,8 @@ package com.kitro.collections
 //import com.kitro.Monoid
 
 
-trait ZAbstractCollectionTools[+A, +COLL[+A]]
-  extends ZAbstractCollection[A, COLL]
+trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
+  extends ZAbstractCollection[A]
 {
   //  def sum[B >: A](implicit m: Monoid[B]): B = this.reduce(m.op)
   //
@@ -17,7 +17,8 @@ trait ZAbstractCollectionTools[+A, +COLL[+A]]
 
   def tail: COLL[A] = this match {
     case AbstractZCons(head, tail) => tail.asInstanceOf[COLL[A]]
-    case _ => this.asInstanceOf[COLL[A]] // supposed to be the Empty type of THIs collection
+    case AbstractZCons(head, _) => 0.asInstanceOf[COLL[A]]
+    case _ => throw new UnsupportedOperationException("tail on empty collection")
   }
 
 //  def size: Int = this match {
@@ -26,16 +27,20 @@ trait ZAbstractCollectionTools[+A, +COLL[+A]]
 //  }
 
   def isEmpty: Boolean = this match {
-    case AbstractZEmpty => true
+    case _:AbstractEmpty => true
     case _ => false
   }
+
+
 }
 
+case class AbstractZCons[+A, COLL[+A]<: ZAbstractCollection[A]](override val head: A, override val tail: COLL[A])
+  extends ZAbstractCollectionTools[A, COLL]
 
-case object AbstractZEmpty extends ZAbstractCollectionTools[Nothing, Nothing] with AbstractEmpty
+case object AbstractZEmpty extends ZAbstractCollectionTools[Nothing, Nothing] //with AbstractEmpty
 
-case class AbstractZCons[+A, COLL[+A]](override val head: A, override val tail: COLL[A])
-  extends ZAbstractCollectionTools[A, COLL]//(head, tail)
+
+
 
   //
   //  def filter(f: A => Boolean): COLL = this match {
