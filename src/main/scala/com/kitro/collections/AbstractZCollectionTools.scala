@@ -10,36 +10,34 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
   //
   //  def sum[B >: A](op: (B, A) => B): B = reduce(op)
 
-    def head: A = this match {
-      case AbstractZCons(head, _) => head
-      case _ => throw new UnsupportedOperationException("head on empty collection")
-    }
+  def head: A = this match {
+    case AbstractZCons(head, _) => head
+    case _ => throw new UnsupportedOperationException("head on empty collection")
+  }
 
-    def tail: COLL[A] = this match {
-      case AbstractZCons(head, tail) => tail.asInstanceOf[COLL[A]]
-  //    case AbstractZCons(head, _) => 0.asInstanceOf[COLL[A]]
-      case _ => throw new UnsupportedOperationException("tail on empty collection")
-    }
+  def tail: COLL[A] = this match {
+    case AbstractZCons(head, tail) => tail//.asInstanceOf[COLL[A]]
+    //    case AbstractZCons(head, _) => 0.asInstanceOf[COLL[A]]
+    case _ => throw new UnsupportedOperationException("tail on empty collection")
+  }
+
   def size: Int = this match {
-    case AbstractZCons(head, tail) => 1 + tail.size
+   // case AbstractZCons(head, tail) => 1 + tail.size
+    case x: AbstractCon[A, COLL] => 1 + x.tail.size
     case _ => 0
   }
-//  def head: A
+
 
   def isEmpty: Boolean = this match {
     case _: AbstractEmpty => true
     case _ => false
   }
 
-  def koko: Int = this match {
-    case AbstractZCons(head, tail) => 1 //+ tail
-    case _ => 0
-  }
 
 }
 
 case class AbstractZCons[+A, COLL[+A] <: ZAbstractCollection[A]](override val head: A, override val tail: COLL[A])
-  extends ZAbstractCollectionTools[A, COLL]
+  extends ZAbstractCollectionTools[A, COLL] with AbstractCon[A, COLL]
 
 //case object AbstractZEmpty extends ZAbstractCollectionTools[Nothing, Nothing]
 
@@ -78,19 +76,7 @@ case class AbstractZCons[+A, COLL[+A] <: ZAbstractCollection[A]](override val he
 //    go(this.head, this.tail)
 //  }
 //
-//
-//
-//
-//  def head: A = this match {
-//    case AbstractZCons(head, _) => head
-//    case _ => throw new UnsupportedOperationException(" head on empty ZList")
-//  }
-//
-//
-//  def isEmpty: Boolean = this.isInstanceOf[AbstractEmpty] match {
-//    case true => true
-//    case false => false
-//  }
+
 //
 //  def ++[B >: A](that: ZAbstractCollectionTools[B]): ZAbstractCollectionTools[B] = this match {
 //    case AbstractZCons(head, Empty) => AbstractZCons(head, that)

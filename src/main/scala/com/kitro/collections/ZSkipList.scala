@@ -6,8 +6,8 @@ package com.kitro.collections
 
 
 sealed abstract class ZSkipList[+A]
-  extends ZAbstractCollectionTools[A, ZSkipList]
-    with ZAbstractCollection[A]
+  extends ZAbstractCollection[A]
+    with ZAbstractCollectionTools[A, ZSkipList]
     //    with
     //    with AbstractEmpty
 {
@@ -43,11 +43,5 @@ object ZSkipList {
 case object SkipEmpty extends ZSkipList[Nothing] with AbstractEmpty
 
 case class SkipZCons[+A](override val head: A, override val tail: ZSkipList[A])
-  extends ZSkipList[A] //with AbstractCon[A, ZSkipList]
+  extends ZSkipList[A] with AbstractCon[A, ZSkipList]
 
-object AppSkip extends App {
-  val li = ZSkipList(1, 2, 3)
-  println(li.head)
-  println(li.tail.head)
-  println(li.isEmpty)
-}
