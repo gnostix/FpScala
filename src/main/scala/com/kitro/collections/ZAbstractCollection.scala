@@ -9,7 +9,7 @@ trait ZAbstractCollection[+A] {
 //  def reduce: A
   def head: A
   def tail: ZAbstractCollection[A]
-//  def size: Int
+  def size: Int
 }
 
 trait AbstractEmpty extends ZAbstractCollection[Nothing]

@@ -6,11 +6,15 @@ package com.kitro.collections
 
 
 sealed abstract class ZSkipList[+A]
-  extends ZAbstractCollection[A]
-    with ZAbstractCollectionTools[A, ZSkipList]
-//    with AbstractEmpty
+  extends ZAbstractCollectionTools[A, ZSkipList]
+    with ZAbstractCollection[A]
+    //    with
+    //    with AbstractEmpty
 {
-
+//  def size: Int = this match {
+//    case SkipZCons(head, tail) => 1 + tail.size
+//    case _ => 0
+//  }
   //  self =>
   //
   //   def reduce2[B >: A](implicit m: Monoid[B]): B = {
