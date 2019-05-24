@@ -7,13 +7,13 @@ import org.scalatest.FunSuite
   */
 class ZSkipListTest extends FunSuite {
 
-  test("head") {
+  test("get head") {
     assertResult(1)(ZSkipList(1, 2, 3, 4, 5, 6, 7).head)
     assertTypeError("head on empty ZList")(ZSkipList().head)
   }
 
-  test("tail") {
-   // assertResult(ZSkipList(2, 3, 4, 5, 6, 7))(ZSkipList(1, 2, 3, 4, 5, 6, 7).tail)
+  test("get tail") {
+    assertResult(ZSkipList(2, 3, 4, 5, 6, 7))(ZSkipList(1, 2, 3, 4, 5, 6, 7).tail)
     assertResult(SkipEmpty)(ZSkipList(1).tail)
 //    assertTypeError("tail on empty ZList")(ZSkipList().tail)
   }
@@ -25,6 +25,7 @@ class ZSkipListTest extends FunSuite {
 
   test(" check SKipList size"){
     assertResult(2)(ZSkipList(1,2).size)
+    assertResult(5)(ZSkipList(1,2,3,4,5).size)
     assertResult(0)(ZSkipList().size)
   }
 }

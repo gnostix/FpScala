@@ -4,7 +4,8 @@ package com.kitro.collections
   * Created by gnostix on 02/05/2019.
   */
 trait ZAbstractCollection[+A] {
-  //  def map: COLL[A]
+  //def map[B]: ZAbstractCollection[B]
+
   //  def filter: COLL[A]
   //  def reduce: A
   def head: A

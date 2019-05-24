@@ -16,13 +16,11 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
   }
 
   def tail: COLL[A] = this match {
-    case AbstractZCons(head, tail) => tail//.asInstanceOf[COLL[A]]
-    //    case AbstractZCons(head, _) => 0.asInstanceOf[COLL[A]]
+    case AbstractZCons(head, tail) => tail
     case _ => throw new UnsupportedOperationException("tail on empty collection")
   }
 
   def size: Int = this match {
-   // case AbstractZCons(head, tail) => 1 + tail.size
     case x: AbstractCon[A, COLL] => 1 + x.tail.size
     case _ => 0
   }
