@@ -33,24 +33,7 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
     case _ => false
   }
 
-  //     def map[B](f: A => B): ZList[B] = this match {
-  //      case x: AbstractCon[A, COLL] => ZCons(f(head), tail.map(f))
-  //      case _ => Empty
-  //    }
-  //, d: (A, COLL[A]) => COLL[B]
-  //  def map[B, CONS[B, COLL[_]] <: COLL[_], EMPTY >: COLL[_]](f: A => B, coll: CONS[_, COLL[_]], empty: EMPTY): COLL[B] = this match {
-  //    case x: AbstractCon[A, COLL] =>  coll(f(x.head), x.tail.map(f, coll, empty))
-  //    case _ =>  ???
-  //  }
-  //  def map[B](f: A => B): COLL[B]
 
-  //  def flatMap[B, COLL[A]](f: A => COLL[B]): COLL[B]
-  //
-  //  def map[B, COLL[A]](f: A => B): COLL[B]
-
-  def koko = {
-    10
-  }
 }
 
 case class AbstractZCons[+A, COLL[+A] <: ZAbstractCollection[A]](override val head: A, override val tail: COLL[A])
@@ -149,11 +132,10 @@ trait Monad[F[_]] extends Functor[F] {
 
   def flatMap[A, B](ma: F[A])(f: A => F[B]): F[B]
 
-  //  def flatten[A](ma: F[A]): F[A]
+  def flatten[A](ma: F[A]): F[A]
 
   def map[A, B](ma: F[A])(f: A => B): F[B] =
     flatMap(ma)(a => unit(f(a)))
-
 
   def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
     flatMap(fa)(a => map(fb)(b => f(a, b)))
@@ -169,13 +151,15 @@ object Monad {
 
     override def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = flatMap(ma)(f)
 
+    override def flatten[A](ma: ZList[A]): ZList[A] = flatMap(ma)(x => ZList(x))
   }
-  //
-  //  val kokoMonad = new Monad[Packet] {
-  //    def unit[A](a: => A): Packet[A] = Packet(a)
-  //
-  //    def flatMap[A, B](ma: Packet[A])(f: A => Packet[B]): Packet[B] = ma.flatMap(ma)(f) // ma.flatMap(ma)(f)
-  //  }
+
+    val kokoMonad = new Monad[Packet] {
+      def unit[A](a: => A): Packet[A] = Packet(a)
+
+      def flatMap[A, B](ma: Packet[A])(f: A => Packet[B]): Packet[B] = ma.flatMap(ma)(f) // ma.flatMap(ma)(f)
+      override def flatten[A](ma: Packet[A]): Packet[A] = ???
+    }
 }
 
 case class Packet[A](data: A) extends Monad[Packet] {
@@ -183,7 +167,7 @@ case class Packet[A](data: A) extends Monad[Packet] {
 
   override def flatMap[A, B](fa: Packet[A])(f: A => Packet[B]): Packet[B] = f(fa.data)
 
-  def flatten[A](ma: Packet[A]): Packet[A] = Packet(ma.data)
+  override def flatten[A](ma: Packet[A]): Packet[A] = Packet(ma.data)
 
   //override def map[A, B](fa: Packet[A])(f: A => B): Packet[B] = ???
 }

@@ -150,24 +150,25 @@ sealed abstract class ZList[+A]
 
   def unit[A](a: => A): ZList[A] = ZList.apply(a)
 
-  //
+
   def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = ma match {
     case Empty => Empty
     case ZCons(h, t) => f(h) ++ flatMap(t)(f)
   }
 
-//  def flatten[A](ma: ZList[A]): ZList[A] = ma match {
-//    case ZCons(head, tail1) => head match {
-//      case ZCons( head, tail2) => ZCons(head, tail1.flatten(tail2))
-//      case ZCons(head, _) => ZList(head).flatten(tail1) //++ tail.flatten(tail)
-//      case x: A => ZList(x).flatten(tail1)
-//    }
-//    case ZCons(head, _) => ZList(head)
-//    case _ => Empty
-//  }
+  override def flatten[A](ma: ZList[A]): ZList[A] = flatMap(ma)(x => ZList(x))
+
+  def foldRight[B](z: B)(op: (A, B) => B): B = this match {
+    case ZCons(head, tail) => op(head, tail.foldRight(z)(op))
+    case _ => z
+  }
+
+  def foldLeft[B](z: B)(op: (B, A) => B): B = this match {
+    case ZCons(head, tail) => tail.foldLeft(op(z, head))(op)
+    case _ => z
+  }
 }
-//case class Gen[+A](sample: State[RNG,A]) {
-//Gen(sample.flatMap(a => f(a).sample))
+
 
 object Empty extends ZList[Nothing] with AbstractEmpty
 
@@ -176,11 +177,6 @@ case class ZCons[+A](override val head: A, override val tail: ZList[A])
 
 
 object ZList {
-  //  implicit val empty = Empty
-  //  implicit val cons = ZCons
-
-  //  def unit[A](a: => A): ZList[A] = ZList.apply(a)
-  //  def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = ???
 
   def cons[A](head: A, tail: ZList[A]): ZCons[A] = ZCons(head, tail)
 

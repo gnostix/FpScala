@@ -106,6 +106,25 @@ class ZListTest extends FunSuite {
   //    assertResult(0)( ZList().sum2)
   //  }
 
+  test("foldRight"){
+    val li1 = ZList(1, 2)
+    assertResult(3)(li1.foldRight(0)(_+_))
+    assertResult(0)(ZList(0).foldRight(0)(_+_))
+
+    val li2 = ZList(1,3,8)
+    assertResult(5)(li2.foldRight(1)(_-_))
+  }
+
+  test("foldLeft"){
+    val li1 = ZList(1, 2)
+    assertResult(3)(li1.foldLeft(0)(_+_))
+    assertResult(0)(ZList(0).foldLeft(0)(_+_))
+
+    val li2 = ZList(1,3,8)
+    assertResult(-11)(li2.foldLeft(1)(_-_))
+
+  }
+
   test("flatMap"){
     val li1 = ZList(1, 2)
     val li2 = ZList(3, 4)
@@ -117,15 +136,25 @@ class ZListTest extends FunSuite {
 //    assertResult(ZList(1,2,3,4))(li1.flatten(li3))
   }
 
+  test("flatten"){
+    val li1 = ZList(1, 2)
+    val li2 = ZList(3, 4)
+    val li3 = ZList(li1, li2)
+
+    assertResult(ZList(1,2,3,4))(li1.flatten(li3))
+    //    assertResult(ZList(1,2,3,4))(li1.flatten(li3))
+  }
+
   test("map") {
     val li = ZList(1, 2, 3)
     assertResult(ZList(2, 4, 6))(li.map(li)(x => x * 2))
   }
 
+  //TODO
   test("map2") {
     val li1 = ZList(1, 2, 3)
-    val li2 = ZList(4, 5, 6)
-    assertResult(ZList(5, 7, 9))(li1.map2(li1, li2)((x,y) => x + y))
+    val li2 = ZList(4, 5)
+    assertResult(ZList(5,6,6,7,7,8))(li1.map2(li1, li2)((x,y) => x + y))
   }
 
   test("empty list size") {
