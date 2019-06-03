@@ -2,6 +2,8 @@ package com.kitro.collections
 
 //import com.kitro.Monoid
 
+import com.kitro.collections
+
 import scala.annotation.tailrec
 import scala.collection.{GenIterableLike, mutable}
 import scala.collection.mutable.ArrayBuffer
@@ -13,22 +15,24 @@ import scala.collection.mutable.ArrayBuffer
 
 sealed abstract class ZList[+A]
   extends ZAbstractCollection[A]
-    with ZAbstractCollectionTools[A, ZList] {
+    with ZAbstractCollectionTools[A, ZList]
+    with Monad[ZList] {
 
 
   self =>
 
-   def filter(f: A => Boolean): ZList[A] = this match {
+
+  def filter(f: A => Boolean): ZList[A] = this match {
     case ZCons(head, tail) => if (f(head)) ZCons(head, tail.filter(f)) else tail.filter(f)
     case _ => Empty
   }
 
-   def map[B](f: A => B): ZList[B] = this match {
-    case ZCons(head, tail) => ZCons(f(head), tail.map(f))
-    case _ => Empty
-  }
+  //   def map[B](f: A => B): ZList[B] = this match {
+  //    case ZCons(head, tail) => ZCons(f(head), tail.map(f))
+  //    case _ => Empty
+  //  }
 
-   def reduce[B >: A](op: (B, A) => B): B = {
+  def reduce[B >: A](op: (B, A) => B): B = {
     if (isEmpty)
       throw new UnsupportedOperationException("reduce on Empty ZList")
 
@@ -122,8 +126,6 @@ sealed abstract class ZList[+A]
   }
 
 
-  def flatMap = ???
-
   def fastFilter(f: A => Boolean): ZList[A] = {
     var arr = new ArrayBuffer[A]()
 
@@ -145,17 +147,40 @@ sealed abstract class ZList[+A]
     ZList.apply(go(this, arr))
   }
 
-}
 
-case object Empty extends ZList[Nothing] with AbstractEmpty
+  def unit[A](a: => A): ZList[A] = ZList.apply(a)
+
+  //
+  def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = ma match {
+    case Empty => Empty
+    case ZCons(h, t) => f(h) ++ flatMap(t)(f)
+  }
+
+//  def flatten[A](ma: ZList[A]): ZList[A] = ma match {
+//    case ZCons(head, tail1) => head match {
+//      case ZCons( head, tail2) => ZCons(head, tail1.flatten(tail2))
+//      case ZCons(head, _) => ZList(head).flatten(tail1) //++ tail.flatten(tail)
+//      case x: A => ZList(x).flatten(tail1)
+//    }
+//    case ZCons(head, _) => ZList(head)
+//    case _ => Empty
+//  }
+}
+//case class Gen[+A](sample: State[RNG,A]) {
+//Gen(sample.flatMap(a => f(a).sample))
+
+object Empty extends ZList[Nothing] with AbstractEmpty
 
 case class ZCons[+A](override val head: A, override val tail: ZList[A])
   extends ZList[A] with AbstractCon[A, ZList]
 
 
-
 object ZList {
+  //  implicit val empty = Empty
+  //  implicit val cons = ZCons
 
+  //  def unit[A](a: => A): ZList[A] = ZList.apply(a)
+  //  def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = ???
 
   def cons[A](head: A, tail: ZList[A]): ZCons[A] = ZCons(head, tail)
 

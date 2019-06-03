@@ -11,6 +11,7 @@ class ZListTest extends FunSuite {
 //  import Monoid._
 
   val list: ZList[Int] = ZList.cons(1, ZCons(3, Empty))
+//  val list: ZList[Int] = ZList.cons(1, ZCons(3, Empty))
 
     test("testSum") {
 //      assertResult(4)(list.sum((x: Int,y: Int) => x + y))
@@ -105,9 +106,26 @@ class ZListTest extends FunSuite {
   //    assertResult(0)( ZList().sum2)
   //  }
 
+  test("flatMap"){
+    val li1 = ZList(1, 2)
+    val li2 = ZList(3, 4)
+    val li3 = ZList(li1, li2)
+    val li4 = ZList(li1)
+
+  //  assertResult(ZList(1,2))(li1.flatMap(li4)(x => x))
+    assertResult(ZList(1,2,3,4))(li1.flatMap(li3)(x => x))
+//    assertResult(ZList(1,2,3,4))(li1.flatten(li3))
+  }
+
   test("map") {
     val li = ZList(1, 2, 3)
-    assertResult(ZList(2, 4, 6))(li.map(x => x * 2))
+    assertResult(ZList(2, 4, 6))(li.map(li)(x => x * 2))
+  }
+
+  test("map2") {
+    val li1 = ZList(1, 2, 3)
+    val li2 = ZList(4, 5, 6)
+    assertResult(ZList(5, 7, 9))(li1.map2(li1, li2)((x,y) => x + y))
   }
 
   test("empty list size") {
