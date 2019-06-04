@@ -5,27 +5,17 @@ package com.kitro.collections
   */
 trait ZAbstractCollection[+A]// extends Monad[ZAbstractCollection[A]]
 {
-//  def map[B, COLL[A] <: ZAbstractCollection[A], CONS[B, COLL[B]] <: COLL[B]](f: A => B, d: (B, COLL[B]) => CONS[B, COLL]): COLL[B]
- // def map[B, COLL[+A], CONS[A, COLL[B]] <: COLL[A]](f: A => B)(implicit cons: CONS[B, COLL], empty: COLL[Nothing]): COLL[B]
-// def map[B, COLL[A] <: ZAbstractCollection[A]](f: A => B, coll: COLL[B]): COLL[B]
-//  def map[B, CONS <: ZAbstractCollection[_], EMPTY <: ZAbstractCollection[_]](f: A => B, coll: CONS, empty: EMPTY): ZAbstractCollection[B]
-  //  def filter: COLL[A]
-  //  def reduce: A
-
-//  def map[B, COLL[A] <: ZAbstractCollection[A]](f: A => B): COLL[B]
-
-//  def flatMap[B, COLL[A]](f: A => COLL[B]): COLL[B]
-//
-//  def map[B, COLL[A]](f: A => B): COLL[B]
-//  def map[B, ZList[A]](f: A => B): ZList[B]
 
   def head: A
 
+//  def tail[A, COLL[A] <: ZAbstractCollection[A]]: COLL[A]
   def tail: ZAbstractCollection[A]
 
   def size: Int
 
+  def foldRight[B](z: B)(op: (A, B) => B): B
 
+//  def +++[A](that: ZAbstractCollection[A]): ZAbstractCollection[A]
 }
 
 object ZAbstractCollection{

@@ -77,7 +77,7 @@ sealed abstract class ZList[+A]
 
   def ++[B >: A](that: ZList[B]): ZList[B] = self match {
     case ZCons(head, Empty) => ZCons(head, that)
-    case ZCons(head, tail) => ZCons(head, tail.++(that).asInstanceOf[ZList[B]])
+    case ZCons(head, tail) => ZCons(head, tail.++(that))
     case _ => that
   }
 
@@ -158,10 +158,10 @@ sealed abstract class ZList[+A]
 
   override def flatten[A](ma: ZList[A]): ZList[A] = flatMap(ma)(x => ZList(x))
 
-  def foldRight[B](z: B)(op: (A, B) => B): B = this match {
-    case ZCons(head, tail) => op(head, tail.foldRight(z)(op))
-    case _ => z
-  }
+//  def foldRight[B](z: B)(op: (A, B) => B): B = this match {
+//    case ZCons(head, tail) => op(head, tail.foldRight(z)(op))
+//    case _ => z
+//  }
 
   def foldLeft[B](z: B)(op: (B, A) => B): B = this match {
     case ZCons(head, tail) => tail.foldLeft(op(z, head))(op)
@@ -191,6 +191,12 @@ object ZList {
   def unapply[A](arg: ZList[A]): Option[A] = arg match {
     case ZCons(head, _) => Some(head)
     case _ => None
+  }
+
+  def listMonoid[A]: Monoid[ZList[A]] = new Monoid[ZList[A]] {
+    override def op(a1: ZList[A], a2: ZList[A]): ZList[A] = a1 ++ a2
+
+    override def zero: ZList[A] = Empty
   }
 
 }

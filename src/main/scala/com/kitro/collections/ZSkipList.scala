@@ -8,29 +8,8 @@ package com.kitro.collections
 sealed abstract class ZSkipList[+A]
   extends ZAbstractCollection[A]
     with ZAbstractCollectionTools[A, ZSkipList]
-    //    with
-    //    with AbstractEmpty
 {
-//  def size: Int = this match {
-//    case SkipZCons(head, tail) => 1 + tail.size
-//    case _ => 0
-//  }
-  //  self =>
-  //
-  //   def reduce2[B >: A](implicit m: Monoid[B]): B = {
-  //    if (isEmpty)
-  //      throw new UnsupportedOperationException("reduce on Empty AbstractZList")
-  //
-  //    @tailrec
-  //    def go(acc: B, coll: ZSkipList[A]): B = {
-  //      coll match {
-  //        case SkipZCons(head, tail) => go(m.op(acc, head), tail)
-  //        case _ => acc
-  //      }
-  //    }
-  //
-  //    go(self.head, self.tail.asInstanceOf[ZSkipList[A]])
-  //  }
+
 
 }
 

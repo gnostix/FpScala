@@ -33,6 +33,10 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
     case _ => false
   }
 
+  def foldRight[B](z: B)(op: (A, B) => B): B = this match {
+    case x: AbstractCon[A, COLL] => op(x.head, x.tail.foldRight(z)(op))
+    case _ => z
+  }
 
 }
 
@@ -42,76 +46,20 @@ case class AbstractZCons[+A, COLL[+A] <: ZAbstractCollection[A]](override val he
 case object AbstractZEmpty extends ZAbstractCollectionTools[Nothing, Nothing] with AbstractEmpty
 
 
-//
-//  def filter(f: A => Boolean): COLL = this match {
-//    case AbstractZCons(head, tail) => if (f(head)) COLL(head, tail.filter(f)) else tail.filter(f)
-//    case _ => this
-//  }
-//
-////  def filter2(f: A => Boolean): ZAbstractCollectionTools[A]
-//
-//  def foldLeft[B](z: B)(op: (B, A) => B): B = this match {
-//    case AbstractZCons(head, tail) => tail.foldLeft(op(z, head))(op)
-//    case x: AbstractCon[A] => tail.foldLeft(op(z, x.head))(op)
-//    case _ => z
-//  }
-//
-//  def map[B](f: A => B): ZAbstractCollectionTools[B] = this match {
-//    case AbstractZCons(head, tail) => AbstractZCons(f(head), tail.map(f))
-//    case _ => AbstractZEmpty
-//  }
-//
-//  def reduce[B >: A](op: (B, A) => B): B = {
-//    if (isEmpty)
-//      throw new UnsupportedOperationException("reduce on Empty ZList")
-//
-//    def go(acc: B, l: ZAbstractCollectionTools[A]): B = {
-//      l match {
-//        case AbstractZCons(head, tail) => go(op(acc, head), tail)
-//        case x: ZAbstractCollectionTools[A] => go(op(acc, x.head), x.tail)
-//        case _ => acc
-//      }
-//    }
-//
-//    go(this.head, this.tail)
-//  }
-//
+trait Monoid[A] {
+  def op(a1: A, a2: A): A
+  def zero: A
+//  def foldRight[A](z: A)(f: (A, A) => A): A
+//  def foldLeft[A](z: A)(f: (A, A) => A): A
+}
 
-//
-//  def ++[B >: A](that: ZAbstractCollectionTools[B]): ZAbstractCollectionTools[B] = this match {
-//    case AbstractZCons(head, Empty) => AbstractZCons(head, that)
-//    case AbstractZCons(head, tail) => AbstractZCons(head, tail.++(that))
-//    case _ => that
-//  }
-//
+object Monoid {
+  def concutListMonoid[A]: Monoid[ZList[A]] = new Monoid[ZList[A]] {
+    def op(a1: ZList[A], a2: ZList[A]): ZList[A] =  a1 ++ a2
+    val zero = Empty
+  }
 
-//}
-
-//object ZAbstractCollectionTools {
-//  // def unapply[A](value: ZAbstractCollectionTools[A]): Option[(Any, Any)] = Some(value.head, value.tail)
-//
-//  def apply[A, COLL <: ZAbstractCollectionTools[A, COLL, CONS], CONS <: COLL](consfn: (A, COLL) => CONS, as: A*): CONS = // Variadic function syntax
-//    if (as.isEmpty) AbstractZEmpty
-//    else cons(as.head, apply(consfn, as.tail: _*), consfn)
-//
-//  def cons[A, COLL <: ZAbstractCollectionTools[A, COLL, CONS], CONS <: COLL](head: A, tail: COLL, consfn: (A, COLL) => CONS): COLL
-//  = consfn(head, tail)
-
-//
-//  def toSkipList[A](as: A*): ZSkipList[A] = // Variadic function syntax
-//    if (as.isEmpty) null
-//    else SkipZCons(as.head, toSkipList(as.tail: _*))
-//}
-
-//case object AbstractZEmpty extends ZAbstractCollectionTools[Nothing, _, _] //with AbstractEmpty
-//
-//case class AbstractZCons[+A, +COLL <: ZAbstractCollectionTools[A, COLL, CONS], CONS <: COLL](
-//       val head: A,
-//       override val tail: COLL)
-//  extends ZAbstractCollectionTools[A, COLL, CONS]
-
-// with AbstractCon[A]
-
+}
 
 trait Functor[F[_]] {
   def map[A, B](fa: F[A])(f: A => B): F[B]
@@ -127,18 +75,21 @@ trait Functor[F[_]] {
 //  }
 //}
 
+// F[_] :<  <: ZAbstractCollection[_]]
 trait Monad[F[_]] extends Functor[F] {
   def unit[A](a: => A): F[A]
 
-  def flatMap[A, B](ma: F[A])(f: A => F[B]): F[B]
+  def flatMap[A, B](ma: F[A])(op: A => F[B]): F[B]
 
   def flatten[A](ma: F[A]): F[A]
 
-  def map[A, B](ma: F[A])(f: A => B): F[B] =
-    flatMap(ma)(a => unit(f(a)))
+  def map[A, B](ma: F[A])(op: A => B): F[B] =
+    flatMap(ma)(a => unit(op(a)))
 
-  def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
-    flatMap(fa)(a => map(fb)(b => f(a, b)))
+  def map2[A, B, C](fa: F[A], fb: F[B])(op: (A, B) => C): F[C] =
+    flatMap(fa)(a => map(fb)(b => op(a, b)))
+
+//  def sum[A](ma: F[A])(z: A)(op: (A, A) => A): A
 
 
 }
