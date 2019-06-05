@@ -1,24 +1,22 @@
 package com.kitro.collections
 
-//import com.kitro.Monoid
+//import com.kitro.algebra.Monoid
 import org.scalatest.FunSuite
 
 /**
   * Created by gnostix on 03/04/2019.
   */
 class ZListTest extends FunSuite {
-  //  val list: ZList[ZCons[Int]] = ZList(1, ZCons(2, ZCons(3, Empty)))
 //  import Monoid._
 
   val list: ZList[Int] = ZList.cons(1, ZCons(3, Empty))
-//  val list: ZList[Int] = ZList.cons(1, ZCons(3, Empty))
 
     test("testSum") {
-//      assertResult(4)(list.sum((x: Int,y: Int) => x + y))
-//      assertResult("alex1")(ZList("a","l","e","x","1").sum)
+      assertResult("alex1")(ZList("a","l","e","x","1").sum)
+      assertResult(10)(ZList(1,2,3,4).sum)
       assertResult("alex1")(ZList("a","l","e","x","1").reduce((x: String, y: String) => x.concat(y)))
       assertResult("1xela")(ZList("a","l","e","x","1").reduceRight((x: String, y: String) => x.concat(y)))
-//      assertResult(4)(list.sum)
+      assertResult(4)(list.sum)
     }
 
   test("reduce Int") {

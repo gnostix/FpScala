@@ -15,6 +15,8 @@ trait ZAbstractCollection[+A]// extends Monad[ZAbstractCollection[A]]
 
   def foldRight[B](z: B)(op: (A, B) => B): B
 
+  def foldLeft[B](z: B)(op: (B, A) => B): B
+
 //  def +++[A](that: ZAbstractCollection[A]): ZAbstractCollection[A]
 }
 

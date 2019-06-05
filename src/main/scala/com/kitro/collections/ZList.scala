@@ -1,11 +1,8 @@
 package com.kitro.collections
 
-//import com.kitro.Monoid
-
-import com.kitro.collections
+import com.kitro.algebra.{Monad, Monoid}
 
 import scala.annotation.tailrec
-import scala.collection.{GenIterableLike, mutable}
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -27,10 +24,6 @@ sealed abstract class ZList[+A]
     case _ => Empty
   }
 
-  //   def map[B](f: A => B): ZList[B] = this match {
-  //    case ZCons(head, tail) => ZCons(f(head), tail.map(f))
-  //    case _ => Empty
-  //  }
 
   def reduce[B >: A](op: (B, A) => B): B = {
     if (isEmpty)
@@ -158,15 +151,7 @@ sealed abstract class ZList[+A]
 
   override def flatten[A](ma: ZList[A]): ZList[A] = flatMap(ma)(x => ZList(x))
 
-//  def foldRight[B](z: B)(op: (A, B) => B): B = this match {
-//    case ZCons(head, tail) => op(head, tail.foldRight(z)(op))
-//    case _ => z
-//  }
 
-  def foldLeft[B](z: B)(op: (B, A) => B): B = this match {
-    case ZCons(head, tail) => tail.foldLeft(op(z, head))(op)
-    case _ => z
-  }
 }
 
 

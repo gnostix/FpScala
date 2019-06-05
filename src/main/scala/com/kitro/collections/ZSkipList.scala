@@ -1,6 +1,6 @@
 package com.kitro.collections
 
-//import com.kitro.Monoid
+//import com.kitro.algebra.Monoid
 //
 //import scala.annotation.tailrec
 
