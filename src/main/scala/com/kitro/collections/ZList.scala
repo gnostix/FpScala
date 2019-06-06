@@ -149,7 +149,7 @@ sealed abstract class ZList[+A]
     case ZCons(h, t) => f(h) ++ flatMap(t)(f)
   }
 
-  override def flatten[A](ma: ZList[A]): ZList[A] = flatMap(ma)(x => ZList(x))
+//  def flatten[A](ma: ZList[ZList[A]]): ZList[A] = flatMap(ma)(x => x)
 
 
 }
