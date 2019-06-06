@@ -143,14 +143,10 @@ sealed abstract class ZList[+A]
 
   def unit[A](a: => A): ZList[A] = ZList.apply(a)
 
-
   def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = ma match {
     case Empty => Empty
     case ZCons(h, t) => f(h) ++ flatMap(t)(f)
   }
-
-//  def flatten[A](ma: ZList[ZList[A]]): ZList[A] = flatMap(ma)(x => x)
-
 
 }
 

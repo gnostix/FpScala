@@ -7,7 +7,6 @@ import com.kitro.collections.ZList
   */
 
 
-
 trait Functor[F[_]] {
   def map[A, B](fa: F[A])(f: A => B): F[B]
 
@@ -28,6 +27,9 @@ trait Monad[F[_]] extends Functor[F] {
 
   def map2[A, B, C](fa: F[A], fb: F[B])(op: (A, B) => C): F[C] =
     flatMap(fa)(a => map(fb)(b => op(a, b)))
+
+  def distribute[A, B](ma: F[(A, B)]): (F[A], F[B]) =
+    (map(ma)(x => x._1), map(ma)(y => y._2))
 
   //  def sum[A](ma: F[A])(z: A)(op: (A, A) => A): A
 
