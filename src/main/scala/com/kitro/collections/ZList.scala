@@ -169,6 +169,10 @@ object ZList {
     if (as.isEmpty) Empty
     else ZCons(as.head, apply(as.tail: _*))
 
+  def apply[A](as: Array[A]): ZList[A] = // Variadic function syntax
+    if (as.isEmpty) Empty
+    else ZCons(as.head, apply(as.tail: _*))
+
   def unapply[A](arg: ZList[A]): Option[A] = arg match {
     case ZCons(head, _) => Some(head)
     case _ => None

@@ -10,7 +10,7 @@ import com.kitro.collections.ZList
 trait Functor[F[_]] {
   def map[A, B](fa: F[A])(f: A => B): F[B]
 
-  //  def unzip[A, B](fa: F[(A, B)])(f: (A, B) => (F[A], F[B])): (F[A], F[B])
+  def distribute[A, B](ma: F[(A, B)]): (F[A], F[B])
 }
 
 
@@ -25,11 +25,15 @@ trait Monad[F[_]] extends Functor[F] {
   def map[A, B](ma: F[A])(op: A => B): F[B] =
     flatMap(ma)(a => unit(op(a)))
 
-  def map2[A, B, C](fa: F[A], fb: F[B])(op: (A, B) => C): F[C] =
-    flatMap(fa)(a => map(fb)(b => op(a, b)))
+  def map2[A, B, C](ma: F[A], fb: F[B])(op: (A, B) => C): F[C] =
+    flatMap(ma)(a => map(fb)(b => op(a, b)))
 
   def distribute[A, B](ma: F[(A, B)]): (F[A], F[B]) =
     (map(ma)(x => x._1), map(ma)(y => y._2))
+
+  def compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
+  //    a => flatMap(f(a))(b => g(b))
+    a => flatMap(f(a))(g)
 
   //  def sum[A](ma: F[A])(z: A)(op: (A, A) => A): A
 
@@ -39,8 +43,6 @@ trait Monad[F[_]] extends Functor[F] {
 object Monad {
   implicit val getZList = new Monad[ZList] {
     override def unit[A](a: => A): ZList[A] = ZList.apply(a)
-
-    //override def map[A, B](fa: ZList[A])(f: A => B): ZList[B] = ???
 
     override def flatMap[A, B](ma: ZList[A])(f: A => ZList[B]): ZList[B] = flatMap(ma)(f)
 
@@ -57,8 +59,6 @@ case class Packet[A](data: A) extends Monad[Packet] {
   def unit[A](a: => A): Packet[A] = Packet.apply(a)
 
   override def flatMap[A, B](fa: Packet[A])(f: A => Packet[B]): Packet[B] = f(fa.data)
-
-  //override def map[A, B](fa: Packet[A])(f: A => B): Packet[B] = ???
 }
 
 object Lala extends App {

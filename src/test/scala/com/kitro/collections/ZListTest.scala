@@ -1,6 +1,7 @@
 package com.kitro.collections
 
 //import com.kitro.algebra.Monoid
+import com.kitro.algebra.Packet
 import org.scalatest.FunSuite
 
 /**
@@ -121,6 +122,19 @@ class ZListTest extends FunSuite {
     val li2 = ZList(1, 3, 8)
     assertResult(-11)(li2.foldLeft(1)(_ - _))
 
+  }
+
+  // compose[A,B,C](f: A => F[B], g: B => F[C]): A => F[C]
+  test("compose"){
+    val f: String => ZList[Int] = (x: String) => ZList(x.split(",").map(x => x.toInt))
+    val g: Int => ZList[Int] = (y: Int) => ZList(y * 2)
+
+    val expected = ZList("1","2").compose(f , g)
+    assertResult(ZList(2,4,6))(expected("1,2,3"))
+
+    val f1 = (str: String) => Packet(str)
+    val g1 = (str: String) => Packet(str.toUpperCase)
+    assertResult(Packet("KOKO"))(Packet().compose(f1, g1)("koko"))
   }
 
   test("distribute list"){
