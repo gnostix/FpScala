@@ -5,14 +5,19 @@ import com.kitro.algebra.Monad
 import scala.util.Random
 
 sealed trait Tree[+A] extends ZAbstractCollection[A]
-  with ZAbstractCollectionTools[A, Tree]
+  with ZAbstractCollectionTools[A, Tree] //do not support List operations
   with Monad[Tree] {
 
   override def size: Int = this match {
+    case EmptyTree => 0
     case Leaf(value) => 1
     case Branch(left, right) => 1 + left.size + right.size
   }
 
+  def maximum(tree: Tree[Int]): Int = tree match {
+    case Leaf(value) => value
+    case Branch(left, right) => left.maximum(left) max right.maximum(right)
+  }
 
   def leafSize: Int = this match {
     case EmptyTree => 0
@@ -24,12 +29,7 @@ sealed trait Tree[+A] extends ZAbstractCollection[A]
   def depth: Int = this match {
     case EmptyTree => 0
     case Leaf(value) => 1
-    case Branch(left, right) => (left, right) match {
-      case (x: Leaf[A], y: Branch[A]) => y.depth + 1
-      case (y: Branch[A], x: Leaf[A]) => y.depth + 1
-      case (y: Branch[A], x: Branch[A]) => if (x.depth > y.depth) x.depth + 1 else y.depth + 1
-      case (x: Leaf[A], y: Leaf[A]) => 1
-    }
+    case Branch(left, right) => 1 + (left.depth max right.depth)
 
 
     //
@@ -48,6 +48,12 @@ sealed trait Tree[+A] extends ZAbstractCollection[A]
     case Leaf(a) => op(a)
     case Branch(left, right) => left.flatMap(left)(op) ++ right.flatMap(right)(op)
   }
+
+  // using map from Monad
+  //  def map[B](f: A => B): Tree[B] = this match {
+  //    case Leaf(value) => Leaf(f(value))
+  //    case Branch(left, right) => Branch(left.map(f), right.map(f))
+  //  }
 
 
 }
