@@ -20,6 +20,7 @@ trait Monad[F[_]] extends Functor[F] {
 
   def flatMap[A, B](ma: F[A])(op: A => F[B]): F[B]
 
+
   def flatten[A](ma: F[F[A]]): F[A] = flatMap(ma)(x => x)
 
   def map[A, B](ma: F[A])(op: A => B): F[B] =
