@@ -10,12 +10,12 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
 
 
   def head: A = this match {
-    case AbstractZCons(head, _) => head
+    case x: AbstractCon[A, COLL] => x.head
     case _ => throw new UnsupportedOperationException("head on empty collection")
   }
 
   def tail: COLL[A] = this match {
-    case AbstractZCons(head, tail) => tail
+    case x: AbstractCon[A, COLL] => x.tail
     case _ => throw new UnsupportedOperationException("tail on empty collection")
   }
 
@@ -30,7 +30,7 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
   }
 
   def foldRight[B](z: B)(op: (A, B) => B): B = this match {
-    case x: AbstractCon[A, COLL] => op(x.head, x.tail.foldRight(z)(op))
+    case x: AbstractCon[A, COLL] => op(head, tail.foldRight(z)(op))
     case _ => z
   }
 
@@ -41,8 +41,11 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
 
 }
 
-case class AbstractZCons[+A, COLL[+A] <: ZAbstractCollection[A]](override val head: A, override val tail: COLL[A])
-  extends ZAbstractCollectionTools[A, COLL] with AbstractCon[A, COLL]
 
-case object AbstractZEmpty extends ZAbstractCollectionTools[Nothing, Nothing] with AbstractEmpty
+trait AbstractEmpty extends ZAbstractCollection[Nothing]
 
+trait AbstractCon[+A, +COLL[+A] <: ZAbstractCollection[A]]
+  extends ZAbstractCollection[A] {
+  val head: A
+  val tail: COLL[A]
+}

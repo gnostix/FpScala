@@ -19,8 +19,8 @@ object ZSkipList {
     else SkipZCons(as.head, apply(as.tail: _*))
 }
 
-case object SkipEmpty extends ZSkipList[Nothing] with AbstractEmpty
+case object SkipEmpty extends ZSkipList[Nothing] //with AbstractEmpty
 
 case class SkipZCons[+A](override val head: A, override val tail: ZSkipList[A])
-  extends ZSkipList[A] with AbstractCon[A, ZSkipList]
+  extends ZSkipList[A] with ZAbstractCollectionTools[A, ZSkipList]
 

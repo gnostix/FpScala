@@ -30,9 +30,6 @@ sealed trait Tree[+A] extends ZAbstractCollection[A]
     case EmptyTree => 0
     case Leaf(value) => 1
     case Branch(left, right) => 1 + (left.depth max right.depth)
-
-
-    //
   }
 
   def ++[A](that: Tree[A]): Tree[A] = this match {
@@ -48,13 +45,6 @@ sealed trait Tree[+A] extends ZAbstractCollection[A]
     case Leaf(a) => op(a)
     case Branch(left, right) => left.flatMap(left)(op) ++ right.flatMap(right)(op)
   }
-
-  // using map from Monad
-  //  def map[B](f: A => B): Tree[B] = this match {
-  //    case Leaf(value) => Leaf(f(value))
-  //    case Branch(left, right) => Branch(left.map(f), right.map(f))
-  //  }
-
 
 }
 
