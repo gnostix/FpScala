@@ -2,9 +2,8 @@ package com.kitro.collections
 
 import org.scalatest.FunSuite
 
-/**
-  * Created by gnostix on 10/06/2019.
-  */
+
+
 class TreeTest extends FunSuite {
 
   test("test$plus$plus") {
@@ -17,7 +16,13 @@ class TreeTest extends FunSuite {
   }
 
   test("testFlatMap") {
+    val expected = Branch(Leaf(2), Branch(Leaf(4), Branch(Leaf(6), Branch(Leaf(8), Branch(Leaf(10), Leaf(12))))))
+    val tree =  Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
 
+
+    val result = tree.flatMap(tree)(x => Leaf(x * 2))
+
+    assertResult(expected)(result)
   }
 
   test("maximum") {
