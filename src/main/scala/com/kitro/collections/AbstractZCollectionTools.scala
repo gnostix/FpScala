@@ -1,6 +1,6 @@
 package com.kitro.collections
 
-import com.kitro.algebra.Monoid
+import com.kitro.algebra.{Foldable, Monoid}
 
 
 trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
@@ -29,15 +29,6 @@ trait ZAbstractCollectionTools[+A, +COLL[+A] <: ZAbstractCollection[A]]
     case _ => false
   }
 
-  def foldRight[B](z: B)(op: (A, B) => B): B = this match {
-    case x: AbstractCon[A, COLL] => op(head, tail.foldRight(z)(op))
-    case _ => z
-  }
-
-  def foldLeft[B](z: B)(op: (B, A) => B): B = this match {
-    case x: AbstractCon[A, COLL] => x.tail.foldLeft(op(z, x.head))(op)
-    case _ => z
-  }
 
 }
 

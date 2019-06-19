@@ -107,20 +107,20 @@ class ZListTest extends FunSuite {
 
   test("foldRight") {
     val li1 = ZList(1, 2)
-    assertResult(3)(li1.foldRight(0)(_ + _))
-    assertResult(0)(ZList(0).foldRight(0)(_ + _))
+    assertResult(3)(li1.foldRight(0)((x: Int, y:Int) => x + y))
+    assertResult(0)(ZList(0).foldRight(0)((x: Int, y:Int) => x + y))
 
     val li2 = ZList(1, 3, 8)
-    assertResult(5)(li2.foldRight(1)(_ - _))
+    assertResult(5)(li2.foldRight(1)((x: Int, y:Int) => x - y))
   }
 
   test("foldLeft") {
     val li1 = ZList(1, 2)
-    assertResult(3)(li1.foldLeft(0)(_ + _))
-    assertResult(0)(ZList(0).foldLeft(0)(_ + _))
+    assertResult(3)(li1.foldLeft(0)((x: Int, y:Int) => x + y))
+    assertResult(0)(ZList(0).foldLeft(0)((x: Int, y:Int) => x + y))
 
     val li2 = ZList(1, 3, 8)
-    assertResult(-11)(li2.foldLeft(1)(_ - _))
+    assertResult(-11)(li2.foldLeft(1)((x: Int, y:Int) => x - y))
 
   }
 

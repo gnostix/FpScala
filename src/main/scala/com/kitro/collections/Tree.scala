@@ -5,8 +5,19 @@ import com.kitro.algebra.Monad
 import scala.util.Random
 
 sealed trait Tree[+A] extends ZAbstractCollection[A]
-  with ZAbstractCollectionTools[A, Tree] //do not support List operations
   with Monad[Tree] {
+
+  def foldRight[A, B](z: B)(op: (A, B) => B): B = this match {
+    case x: Leaf[A] => op(x.value, z)
+    case Branch(left, right) => left.foldRight(right.foldRight(z)(op))(op)
+    case _ => z
+  }
+
+  def foldLeft[A, B](z: B)(op: (B, A) => B): B = this match {
+    case x: Leaf[A] => op(z, x.value)
+    case Branch(left, right) =>  left.foldLeft(right.foldLeft(z)(op))(op)
+    case _ => z
+  }
 
   override def size: Int = this match {
     case EmptyTree => 0

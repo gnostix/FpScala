@@ -6,6 +6,23 @@ import org.scalatest.FunSuite
 
 class TreeTest extends FunSuite {
 
+  test("foldRight") {
+    val tree = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
+    val treeEmpty = EmptyTree
+
+    assertResult(0)(treeEmpty.foldRight(0)((x: Int, y: Int) => x + y))
+    assertResult(21)(tree.foldRight(0)((x: Int, y: Int) => x + y))
+  }
+
+  test("foldLeft") {
+    val tree = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(-6)))))
+    val treeEmpty = EmptyTree
+
+    assertResult(0)(treeEmpty.foldLeft(0)((x: Int, y: Int) => x + y))
+    assertResult(9)(tree.foldLeft(0)((x: Int, y: Int) => x + y))
+  }
+
+
   test("test$plus$plus") {
     val expected = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
     val tr1 = Branch(Branch(Leaf(1), Leaf(2)), Leaf(3))

@@ -1,6 +1,6 @@
 package com.kitro.collections
 
-import com.kitro.algebra.{Monad, Monoid}
+import com.kitro.algebra.{Foldable, Monad, Monoid}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -13,11 +13,21 @@ import scala.collection.mutable.ArrayBuffer
 sealed abstract class ZList[+A]
   extends ZAbstractCollection[A]
     with ZAbstractCollectionTools[A, ZList]
-    with Monad[ZList] {
+    with Monad[ZList]
+    {
 
 
   self =>
 
+  def foldRight[A, B](z: B)(op: (A, B) => B): B = this match {
+    case x: ZCons[A] => op(x.head, x.tail.foldRight(z)(op))
+    case _ => z
+  }
+
+  def foldLeft[A, B](z: B)(op: (B, A) => B): B = this match {
+    case x: ZCons[A] => x.tail.foldLeft(op(z, x.head))(op)
+    case _ => z
+  }
 
   def filter(f: A => Boolean): ZList[A] = this match {
     case ZCons(head, tail) => if (f(head)) ZCons(head, tail.filter(f)) else tail.filter(f)
@@ -147,6 +157,7 @@ sealed abstract class ZList[+A]
     case Empty => Empty
     case ZCons(h, t) => f(h) ++ flatMap(t)(f)
   }
+
 
 }
 
