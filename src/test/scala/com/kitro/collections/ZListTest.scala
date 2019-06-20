@@ -9,10 +9,15 @@ import org.scalatest.FunSuite
   */
 class ZListTest extends FunSuite {
 
-  import com.kitro.algebra.Monoid._
+//  import com.kitro.algebra.Monoid._
 
   val list: ZList[Int] = ZList.cons(1, ZCons(3, Empty))
+  implicit val intMonoid = Monoid.intMonoid
 
+  test("concatenate") {
+    val li:ZList[Int] = ZList[Int](1, 2, 3, 4, 5)
+    assertResult(15)(li.concatenate) // uses implicit int monoid
+  }
 
   test("foldMap") {
     val li = ZList(1, 2, 3, 4, 5)

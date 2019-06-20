@@ -1,10 +1,18 @@
 package com.kitro.collections
 
+import com.kitro.algebra.Monoid
 import org.scalatest.FunSuite
 
 
 
 class TreeTest extends FunSuite {
+
+  implicit val intMonoid = Monoid.intMonoid
+
+  test("concatenate") {
+    val li = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
+    assertResult(21)(li.concatenate) // uses implicit int monoid
+  }
 
   test("foldMap") {
     val li = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
