@@ -6,9 +6,9 @@ trait Foldable[F[_]] {
 
   def foldLeft[A, B](z: B)(f: (B, A) => B): B
 
-  def foldMap[A, B](as: F[A])(f: A => B)(m: Monoid[B]): B =
+  def foldMap[A, B](f: A => B)(implicit m: Monoid[B]): B =
     foldLeft(m.zero)((x:B ,y:A) => m.op(f(y), x))
 
-  def concatenate[A](as: F[A])(m: Monoid[A]): A =
+  def concatenate[A](implicit m: Monoid[A]): A =
     foldLeft(m.zero)(m.op)
 }

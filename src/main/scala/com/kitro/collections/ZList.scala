@@ -13,11 +13,12 @@ import scala.collection.mutable.ArrayBuffer
 sealed abstract class ZList[+A]
   extends ZAbstractCollection[A]
     with ZAbstractCollectionTools[A, ZList]
-    with Monad[ZList]
-    {
+    with Monad[ZList] {
 
 
   self =>
+
+  import Monoid._
 
   def foldRight[A, B](z: B)(op: (A, B) => B): B = this match {
     case x: ZCons[A] => op(x.head, x.tail.foldRight(z)(op))

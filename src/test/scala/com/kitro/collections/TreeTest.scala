@@ -6,6 +6,11 @@ import org.scalatest.FunSuite
 
 class TreeTest extends FunSuite {
 
+  test("foldMap") {
+    val li = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
+    assertResult(27)(li.foldMap((x:Int) => x + 1))
+  }
+
   test("foldRight") {
     val tree = Branch(Branch(Leaf(1), Leaf(2)), Branch(Leaf(3), Branch(Leaf(4), Branch(Leaf(5), Leaf(6)))))
     val treeEmpty = EmptyTree

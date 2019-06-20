@@ -1,16 +1,24 @@
 package com.kitro.collections
 
 //import com.kitro.algebra.Monoid
-import com.kitro.algebra.Packet
+import com.kitro.algebra.{Monoid, Packet}
 import org.scalatest.FunSuite
 
 /**
   * Created by gnostix on 03/04/2019.
   */
 class ZListTest extends FunSuite {
-  //  import Monoid._
+
+  import com.kitro.algebra.Monoid._
 
   val list: ZList[Int] = ZList.cons(1, ZCons(3, Empty))
+
+
+  test("foldMap") {
+    val li = ZList(1, 2, 3, 4, 5)
+    assertResult(20)(li.foldMap((x: Int) => x + 1))
+  }
+
 
   test("testSum") {
     assertResult("alex1")(ZList("a", "l", "e", "x", "1").sum)
@@ -107,39 +115,39 @@ class ZListTest extends FunSuite {
 
   test("foldRight") {
     val li1 = ZList(1, 2)
-    assertResult(3)(li1.foldRight(0)((x: Int, y:Int) => x + y))
-    assertResult(0)(ZList(0).foldRight(0)((x: Int, y:Int) => x + y))
+    assertResult(3)(li1.foldRight(0)((x: Int, y: Int) => x + y))
+    assertResult(0)(ZList(0).foldRight(0)((x: Int, y: Int) => x + y))
 
     val li2 = ZList(1, 3, 8)
-    assertResult(5)(li2.foldRight(1)((x: Int, y:Int) => x - y))
+    assertResult(5)(li2.foldRight(1)((x: Int, y: Int) => x - y))
   }
 
   test("foldLeft") {
     val li1 = ZList(1, 2)
-    assertResult(3)(li1.foldLeft(0)((x: Int, y:Int) => x + y))
-    assertResult(0)(ZList(0).foldLeft(0)((x: Int, y:Int) => x + y))
+    assertResult(3)(li1.foldLeft(0)((x: Int, y: Int) => x + y))
+    assertResult(0)(ZList(0).foldLeft(0)((x: Int, y: Int) => x + y))
 
     val li2 = ZList(1, 3, 8)
-    assertResult(-11)(li2.foldLeft(1)((x: Int, y:Int) => x - y))
+    assertResult(-11)(li2.foldLeft(1)((x: Int, y: Int) => x - y))
 
   }
 
   // compose[A,B,C](f: A => F[B], g: B => F[C]): A => F[C]
-  test("compose"){
+  test("compose") {
     val f: String => ZList[Int] = (x: String) => ZList(x.split(",").map(x => x.toInt))
     val g: Int => ZList[Int] = (y: Int) => ZList(y * 2)
 
-    val expected = ZList("1","2").compose(f , g)
-    assertResult(ZList(2,4,6))(expected("1,2,3"))
+    val expected = ZList("1", "2").compose(f, g)
+    assertResult(ZList(2, 4, 6))(expected("1,2,3"))
 
     val f1 = (str: String) => Packet(str)
     val g1 = (str: String) => Packet(str.toUpperCase)
     assertResult(Packet("KOKO"))(Packet().compose(f1, g1)("koko"))
   }
 
-  test("distribute list"){
-    val li = ZList((1,2),(3,4),(5,6))
-    assertResult((ZList(1,3,5), ZList(2,4,6)))(li.distribute(li))
+  test("distribute list") {
+    val li = ZList((1, 2), (3, 4), (5, 6))
+    assertResult((ZList(1, 3, 5), ZList(2, 4, 6)))(li.distribute(li))
   }
 
   test("flatMap") {
@@ -156,7 +164,7 @@ class ZListTest extends FunSuite {
     val li3 = ZList(li1, li2)
 
     assertResult(ZList(1, 2, 3, 4))(li1.flatten(li3))
-//    assertResult(ZList(1, 2))(li1.flatten(li1))
+    //    assertResult(ZList(1, 2))(li1.flatten(li1))
   }
 
   test("map") {
