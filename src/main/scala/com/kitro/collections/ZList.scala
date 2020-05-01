@@ -179,7 +179,7 @@ object ZList {
 
   def apply[A](as: ArrayBuffer[A]): ZList[A] = // Variadic function syntax
     if (as.isEmpty) Empty
-    else ZCons(as.head, apply(as.tail: _*))
+    else ZCons(as.head, apply(as.tail.toList: _*))
 
   def apply[A](as: Array[A]): ZList[A] = // Variadic function syntax
     if (as.isEmpty) Empty
